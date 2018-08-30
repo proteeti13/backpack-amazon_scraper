@@ -1,10 +1,13 @@
 import csv
 import requests
 import json
+import time
 from bs4 import BeautifulSoup
 filename = "ASIN.csv"
+outfilename = "JSON1.out"
 
 f = open(filename, "w",encoding="utf-8")
+f2 = open(outfilename, "w",encoding="utf-8")
 
 
 def getAsin(gist):
@@ -15,7 +18,6 @@ def getAsin(gist):
         reader = csv.reader(csvfile)
         asin_list = list(reader)
     return asin_list
-
 
 def getSoup(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'}
@@ -147,7 +149,7 @@ def getAttributes(soup):
                 obj ['value'] = section_divList[i].find(class_="selection").text.strip()
                 attributes.append(obj)
             except:
-                time.wait(3)
+                time.sleep(3)
     return attributes
 
 
@@ -175,15 +177,18 @@ def main():
     ASIN_list = getAsin(gistData)
     jsonarray = []
 
-    for i in range(20):
+    for i in range(30):
         # print(ASIN_list[i][0])
+        print(i)
         productUrl = "http://www.amazon.com/dp/" + ASIN_list[i][0]
         pageMarkup = getSoup(productUrl)
         dict_data = makeDict(pageMarkup)
         jsonarray.append(dict_data)
     json_output = json.dumps(jsonarray, indent=4)
 
-    print(json_output)
+    # print(json_output)
+    f2.write(json_output)
+
 
 
 if __name__ == "__main__":
