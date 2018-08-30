@@ -9,25 +9,23 @@ f = open(filename, "w",encoding="utf-8")
 def getAsin(gist):
     gist_data = requests.get(gist)
     asins = gist_data.text
-    f.write(asins)  ####writes asin to csv file
+    f.write(asins)
     with open('ASIN.csv') as csvfile:
         reader = csv.reader(csvfile)
         asin_list = list(reader)
-    return asin_list   ##########csv to list
+    return asin_list
 
 
 def getSoup(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'}
     response = requests.get(url,headers=headers)
     soup = BeautifulSoup(response.text,"lxml")
-    # print(soup)
     return soup
 
 
 def getFeatures(soup):
     features = []
     feature = soup.findAll("div",{"id":"featurebullets_feature_div"})
-    # print(feature)
     for i in range(len(feature)):
         f_list = feature[i].findAll("span",{"class":"a-list-item"})
         for j in range(len(f_list)):
@@ -55,42 +53,45 @@ def getFeatures(soup):
 
 def getListPrice(soup):
     uniprice_div = soup.find(id="unifiedPrice_feature_div")
-    price_div = uniprice_div.find(id="price")
-    if (price_div == None):                                      
-        pass                                                     
-    else:                                                        
-        listprice_span = price_div.findAll("span",{"class":"a-text-strike"})
-        if (listprice_span == []):
-            pass                                                  
-        else:                                                     
-            listprice_inDollar = listprice_span[0].text.strip()
-            listprice_inCent = float(listprice_inDollar.strip('$'))*100
-            return listprice_inCent
+    if (uniprice_div == None):
+        return "None"
+    else:
+        price_div = uniprice_div.find(id="price")
+        if (price_div == None):
+            return "None"
+        else:
+            listprice_span = price_div.findAll("span",{"class":"a-text-strike"})
+            if (listprice_span == []):
+                return "None"
+            else:
+                listprice_inDollar = listprice_span[0].text.strip()
+                listprice_inCent = float(listprice_inDollar.strip('$'))*100
+                return listprice_inCent
 
 
 
 def getDescription(soup):
-
     desc_div= soup.find(id="productDescription")
     if (desc_div == None):
         return "None"
     else:
-        description = desc_div.getText().strip()
+        description = desc_div.text.strip()
         return description
 
 
 def getImages(soup):
     img = soup.find("div", {"id": "imgTagWrapperId"}).find("img")
-    data = json.loads(img["data-a-dynamic-image"])
-    return list(data.keys())
+    if (img == None):
+        return "None"
+    else:
+        data = json.loads(img["data-a-dynamic-image"])
+        return list(data.keys())
 
 
 def getRating(soup):
     review_div = soup.find(id="reviewSummary")
-    # print(review_div)
     if(review_div == None):
         return "None"
-
     else:
         rating_span =  review_div.find(class_="a-icon-alt")
         if (rating_span == None):
@@ -100,8 +101,7 @@ def getRating(soup):
             rating_list = rating_string.split(" ")
             rating = float(rating_list[0])
             return rating
-        
-        
+
 def getPrime(soup):
     val = soup.find(id="bbop-check-box")
     if (val == None):
@@ -117,6 +117,24 @@ def getBrand(soup):
         brand = soup.find(id="bylineInfo").text.strip()
         return brand
 
+def getAttributes(soup):
+    attributes = []
+    obj = {}
+    attribute_div = soup.find(id="twister")
+    if (attribute_div == None):
+        return "None"
+    else:
+        section_divList = attribute_div.findAll("div",{"class":"a-section"})
+        for i in range(len(section_divList)):
+            try:
+                obj ['name'] = section_divList[i].find(class_="a-form-label").text.strip()
+                obj ['value'] = section_divList[i].find(class_="selection").text.strip()
+                attributes.append(obj)
+            except:
+                time.wait(3)
+    return attributes
+
+
 
 def makeDict(soup):
     data = {
@@ -129,17 +147,18 @@ def makeDict(soup):
         'listPrice': getListPrice(soup),
         'prime' :getPrime(soup),
         'images': getImages(soup),
+        'attributes': getAttributes(soup),
         'rating': getRating(soup),
+
 
         }
     return data
 
 
-
 def main():
     gistData= 'https://gist.githubusercontent.com/Corei13/00161af3a7c07c4eafcc166d484defff/raw/3ff0c7e74647e622af629ff076dae35ed115ab50/asin.list'
     ASIN_list = getAsin(gistData)
-    for i in range(20):
+    for i in range(10):
         print(ASIN_list[i][0])
         productUrl = "http://www.amazon.com/dp/" + ASIN_list[i][0]
         pageMarkup = getSoup(productUrl)
