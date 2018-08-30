@@ -3,6 +3,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 filename = "ASIN.csv"
+
 f = open(filename, "w",encoding="utf-8")
 
 
@@ -165,7 +166,6 @@ def makeDict(soup):
         'attributes': getAttributes(soup),
         'rating': getRating(soup),
 
-
         }
     return data
 
@@ -173,13 +173,17 @@ def makeDict(soup):
 def main():
     gistData= 'https://gist.githubusercontent.com/Corei13/00161af3a7c07c4eafcc166d484defff/raw/3ff0c7e74647e622af629ff076dae35ed115ab50/asin.list'
     ASIN_list = getAsin(gistData)
-    for i in range(10):
-        print(ASIN_list[i][0])
+    jsonarray = []
+
+    for i in range(20):
+        # print(ASIN_list[i][0])
         productUrl = "http://www.amazon.com/dp/" + ASIN_list[i][0]
         pageMarkup = getSoup(productUrl)
-        result = makeDict(pageMarkup)
-        json_output = json.dumps(result)
-        print(json_output)
+        dict_data = makeDict(pageMarkup)
+        jsonarray.append(dict_data)
+    json_output = json.dumps(jsonarray, indent=4)
+
+    print(json_output)
 
 
 if __name__ == "__main__":
