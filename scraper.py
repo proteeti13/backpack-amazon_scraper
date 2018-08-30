@@ -129,7 +129,7 @@ def makeDict(soup):
         'listPrice': getListPrice(soup),
         'prime' :getPrime(soup),
         'images': getImages(soup),
-        # 'rating': getRating(soup),
+        'rating': getRating(soup),
 
         }
     return data
