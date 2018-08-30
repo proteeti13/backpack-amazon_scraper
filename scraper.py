@@ -56,13 +56,13 @@ def getFeatures(soup):
 def getListPrice(soup):
     uniprice_div = soup.find(id="unifiedPrice_feature_div")
     price_div = uniprice_div.find(id="price")
-    if (price_div == None):   ####check if there exists a pricediv
-        pass           ######### no listprice
-    else:                  ###if there is pricediv
+    if (price_div == None):                                      
+        pass                                                     
+    else:                                                        
         listprice_span = price_div.findAll("span",{"class":"a-text-strike"})
         if (listprice_span == []):
-            pass          ######### no listprice
-        else:               ############# exists listprice
+            pass                                                  
+        else:                                                     
             listprice_inDollar = listprice_span[0].text.strip()
             listprice_inCent = float(listprice_inDollar.strip('$'))*100
             return listprice_inCent
