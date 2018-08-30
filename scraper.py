@@ -85,22 +85,23 @@ def getImages(soup):
     return list(data.keys())
 
 
-# def getRating(soup):
-#     review_div = soup.find(id="reviewSummary")
-#     # print(review_div)
-#     if(review_div == None):
-#         return "None"
-#
-#     else:
-#         rating_span =  review_div.find(class_="a-icon-alt")
-#         if (rating_span == "None"):
-#             return "None"
-#         else:
-#             rating_string = rating_span.text().strip()
-#             rating_list = rating_string.split("")
-#             rating = float(rating_list[0])
-#             return rating
+def getRating(soup):
+    review_div = soup.find(id="reviewSummary")
+    # print(review_div)
+    if(review_div == None):
+        return "None"
 
+    else:
+        rating_span =  review_div.find(class_="a-icon-alt")
+        if (rating_span == None):
+            return "None"
+        else:
+            rating_string = rating_span.getText().strip()
+            rating_list = rating_string.split(" ")
+            rating = float(rating_list[0])
+            return rating
+        
+        
 def getPrime(soup):
     val = soup.find(id="bbop-check-box")
     if (val == None):
