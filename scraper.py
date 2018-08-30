@@ -38,18 +38,33 @@ def getFeatures(soup):
                 features.append(f_string)
     return features
 
+def getPrice(soup):
+    if (soup.find(id="priceblock_ourprice")== None):
+        price_div = soup.find_all(class_ = "a-color-price")
+        price_inDollar = price_div[1].text.strip()
+        try:
+            price_inCent = float(price_inDollar.strip('$').strip("'")) * 100
+            return price_inCent
+        except:
+            return price_inDollar
 
-# def getPrice(soup):
-#     if (soup.find(id="priceblock_ourprice")== None):
-#         price_div = soup.findAll("div",{"data-a-input-name":"offeringID.1"})
-#         price_span = price_div[0].findAll("span",{"class":"p13n-sc-price"})
-#         price_inDollar = price_span[0].text.strip()
-#         price_inCent = float(price_inDollar.strip('$').strip("'")) * 100
-#         return price_inCent
-#     else:
-#         priceinDollar= soup.find(id="priceblock_ourprice").text.strip()
-#         price_inCent = float(priceinDollar.strip('$').strip("'")) * 100
-#         return price_inCent
+    elif(soup.find(id="priceblock_ourprice") != None):
+        price_span = soup.find(id="price_inside_buybox")
+        price_inDollar = price_span.text.strip()
+        try:
+            price_inCent= float(price_inDollar.strip('$').strip("'")) * 100
+            return price_inCent
+        except:
+            return price_inDollar
+
+    else:
+        price_inDollar= soup.find(id="priceblock_ourprice").text.strip()
+        try:
+            price_inCent = float(price_inDollar.strip('$').strip("'")) * 100
+            return price_inCent
+        except:
+            return price_inDollar
+
 
 def getListPrice(soup):
     uniprice_div = soup.find(id="unifiedPrice_feature_div")
@@ -142,7 +157,7 @@ def makeDict(soup):
         'title': soup.find(id="title").text.strip(),
         'brand':getBrand(soup) ,
         'feature': getFeatures(soup),
-        # 'price': getPrice(soup),
+        'price': getPrice(soup),
         'description': getDescription(soup),
         'listPrice': getListPrice(soup),
         'prime' :getPrime(soup),
