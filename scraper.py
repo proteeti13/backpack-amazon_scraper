@@ -48,7 +48,7 @@ def getPrice(soup):
         except:
             return price_inDollar
 
-    elif(soup.find(id="priceblock_ourprice") != None):
+    elif(soup.find(id="price_inside_buybox") != None):
         price_span = soup.find(id="price_inside_buybox")
         price_inDollar = price_span.text.strip()
         try:
